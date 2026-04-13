@@ -14,7 +14,11 @@ CACHE_DIR.mkdir(exist_ok=True)
 CACHE_TTL = 86400  # 24 hours
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+OVERPASS_URLS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+]
 HEADERS = {"User-Agent": "HealthcareNavigatorIndia/1.0 (educational project)"}
 
 
@@ -67,34 +71,34 @@ def _build_overpass_query(lat: float, lon: float, radius_m: int) -> str:
     """
 
 
+
+
+
 def _fetch_hospitals_overpass(lat: float, lon: float) -> list[dict]:
-    # Try progressively wider radii: 8km → 15km → 25km
+    # Try each Overpass mirror × progressively wider radii
     for radius in [8000, 15000, 25000]:
-        try:
-            logger.info("Querying Overpass API radius=%dm at (%.4f, %.4f)", radius, lat, lon)
-            resp = requests.post(
-                OVERPASS_URL,
-                data={"data": _build_overpass_query(lat, lon, radius)},
-                headers=HEADERS,
-                timeout=35,
-            )
-            resp.raise_for_status()
-            elements = resp.json().get("elements", [])
-            hospitals = _parse_elements(elements)
-            if hospitals:
-                logger.info("Found %d hospitals at radius %dm", len(hospitals), radius)
-                return hospitals
-            logger.info("No hospitals at radius %dm, widening...", radius)
-            time.sleep(1)  # be polite to Overpass
-        except requests.exceptions.Timeout:
-            logger.warning("Overpass timeout at radius %dm", radius)
-        except Exception as e:
-            logger.error("Overpass error: %s", e)
-            break
+        for url in OVERPASS_URLS:
+            try:
+                logger.info("Querying %s radius=%dm", url, radius)
+                resp = requests.post(
+                    url,
+                    data={"data": _build_overpass_query(lat, lon, radius)},
+                    headers=HEADERS,
+                    timeout=35,
+                )
+                resp.raise_for_status()
+                hospitals = _parse_elements(resp.json().get("elements", []))
+                if hospitals:
+                    logger.info("Found %d hospitals via %s at radius %dm", len(hospitals), url, radius)
+                    return hospitals
+            except requests.exceptions.Timeout:
+                logger.warning("Timeout: %s radius=%dm", url, radius)
+            except Exception as e:
+                logger.warning("Overpass error %s: %s", url, e)
+        time.sleep(1)
     return []
 
-
-def _parse_elements(elements: list) -> list[dict]:
+(elements: list) -> list[dict]:
     hospitals = []
     seen = set()
     for el in elements:
@@ -159,8 +163,9 @@ def get_hospitals(location: str, specialty: str, limit: int = 5) -> dict:
         lat, lon = coords
         center = {"lat": lat, "lon": lon}
         hospitals = _fetch_hospitals_overpass(lat, lon)
-        # Cache even empty results to avoid hammering the API
-        cache_path.write_text(json.dumps({"hospitals": hospitals, "center": center}))
+        # Only cache non-empty results so we retry on next request if empty
+        if hospitals:
+            cache_path.write_text(json.dumps({"hospitals": hospitals, "center": center}))
         logger.info("Cached %d hospitals for %s", len(hospitals), location)
 
     lat, lon = center["lat"], center["lon"]
