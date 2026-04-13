@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
@@ -11,19 +12,33 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from dotenv import load_dotenv
 
 from app.models import AnalyzeRequest, AnalyzeResponse
 from app.services import nlp_service, hospital_service, cost_service, explanation_service
 
+load_dotenv()
+
+# ── Config from environment variables ─────────────────────────────────────────
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "*")
+CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "86400"))
+
+_BASE = Path(__file__).parent.parent
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
 logger = logging.getLogger(__name__)
+logger.info("Starting with LOG_LEVEL=%s ALLOWED_ORIGIN=%s CACHE_TTL=%ds",
+            LOG_LEVEL, ALLOWED_ORIGIN, CACHE_TTL_SECONDS)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # ensure cache dir exists on Railway (ephemeral filesystem)
+    (_BASE / "cache").mkdir(exist_ok=True)
     logger.info("Warming up NLP engine...")
     try:
         nlp_service.analyze_query("test warmup")
@@ -48,7 +63,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # tighten to your frontend domain in production
+    allow_origins=[ALLOWED_ORIGIN] if ALLOWED_ORIGIN != "*" else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,7 +76,8 @@ _executor = ThreadPoolExecutor(max_workers=4)
 async def log_requests(request: Request, call_next):
     start = time.time()
     response = await call_next(request)
-    logger.info("%s %s → %d (%.2fs)", request.method, request.url.path, response.status_code, time.time() - start)
+    logger.info("%s %s → %d (%.2fs)", request.method, request.url.path,
+                response.status_code, time.time() - start)
     return response
 
 
@@ -104,7 +120,7 @@ async def analyze(req: AnalyzeRequest, request: Request):
         logger.error("NLP service failed: %s", e)
         raise HTTPException(status_code=503, detail=f"NLP service unavailable: {e}")
 
-    # 2. Hospitals — I/O bound, also offloaded
+    # 2. Hospitals — I/O bound, offloaded to thread
     hospital_data = await loop.run_in_executor(
         _executor, lambda: hospital_service.get_hospitals(req.location, nlp["specialty"])
     )
@@ -141,9 +157,6 @@ async def analyze(req: AnalyzeRequest, request: Request):
         insights=insights,
         alternatives=nlp["alternatives"],
     )
-
-
-_BASE = Path(__file__).parent.parent
 
 
 @app.get("/procedures", tags=["Reference"])
