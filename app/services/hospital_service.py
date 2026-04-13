@@ -31,7 +31,7 @@ def _is_cache_valid(path: Path) -> bool:
     return path.exists() and (time.time() - path.stat().st_mtime) < CACHE_TTL
 
 
-def _geocode(location: str) -> tuple[float, float] | None:
+def _geocode(location: str):
     try:
         resp = requests.get(
             NOMINATIM_URL,
@@ -71,34 +71,7 @@ def _build_overpass_query(lat: float, lon: float, radius_m: int) -> str:
     """
 
 
-
-
-
-def _fetch_hospitals_overpass(lat: float, lon: float) -> list[dict]:
-    # Try each Overpass mirror × progressively wider radii
-    for radius in [8000, 15000, 25000]:
-        for url in OVERPASS_URLS:
-            try:
-                logger.info("Querying %s radius=%dm", url, radius)
-                resp = requests.post(
-                    url,
-                    data={"data": _build_overpass_query(lat, lon, radius)},
-                    headers=HEADERS,
-                    timeout=35,
-                )
-                resp.raise_for_status()
-                hospitals = _parse_elements(resp.json().get("elements", []))
-                if hospitals:
-                    logger.info("Found %d hospitals via %s at radius %dm", len(hospitals), url, radius)
-                    return hospitals
-            except requests.exceptions.Timeout:
-                logger.warning("Timeout: %s radius=%dm", url, radius)
-            except Exception as e:
-                logger.warning("Overpass error %s: %s", url, e)
-        time.sleep(1)
-    return []
-
-(elements: list) -> list[dict]:
+def _parse_elements(elements: list) -> list:
     hospitals = []
     seen = set()
     for el in elements:
@@ -131,9 +104,33 @@ def _fetch_hospitals_overpass(lat: float, lon: float) -> list[dict]:
     return hospitals
 
 
+def _fetch_hospitals_overpass(lat: float, lon: float) -> list:
+    for radius in [8000, 15000, 25000]:
+        for url in OVERPASS_URLS:
+            try:
+                logger.info("Querying %s radius=%dm", url, radius)
+                resp = requests.post(
+                    url,
+                    data={"data": _build_overpass_query(lat, lon, radius)},
+                    headers=HEADERS,
+                    timeout=35,
+                )
+                resp.raise_for_status()
+                hospitals = _parse_elements(resp.json().get("elements", []))
+                if hospitals:
+                    logger.info("Found %d hospitals via %s radius=%dm", len(hospitals), url, radius)
+                    return hospitals
+            except requests.exceptions.Timeout:
+                logger.warning("Timeout: %s radius=%dm", url, radius)
+            except Exception as e:
+                logger.warning("Overpass error %s: %s", url, e)
+        time.sleep(1)
+    return []
+
+
 def _score_hospital(h: dict, center_lat: float, center_lon: float, specialty: str) -> dict:
     dist = _haversine(center_lat, center_lon, h["latitude"], h["longitude"])
-    dist_score = max(0.0, 1.0 - dist / 25.0)   # scaled to 25km window
+    dist_score = max(0.0, 1.0 - dist / 25.0)
     spec_score = 0.3 if specialty.lower() in h.get("speciality", "").lower() else 0.0
     emg_score = 0.1 if str(h.get("emergency", "")).lower() in ("yes", "24/7") else 0.0
     total = round(dist_score * 0.6 + spec_score + emg_score, 4)
@@ -166,7 +163,7 @@ def get_hospitals(location: str, specialty: str, limit: int = 5) -> dict:
         # Only cache non-empty results so we retry on next request if empty
         if hospitals:
             cache_path.write_text(json.dumps({"hospitals": hospitals, "center": center}))
-        logger.info("Cached %d hospitals for %s", len(hospitals), location)
+        logger.info("Fetched %d hospitals for %s", len(hospitals), location)
 
     lat, lon = center["lat"], center["lon"]
     scored = [_score_hospital(h, lat, lon, specialty) for h in hospitals]
