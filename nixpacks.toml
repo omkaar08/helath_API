@@ -2,6 +2,6 @@
 cmds = [
   "python -m venv --copies /opt/venv",
   "/opt/venv/bin/pip install --upgrade pip",
-  "/opt/venv/bin/pip install torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu",
+  "/opt/venv/bin/pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu",
   "/opt/venv/bin/pip install -r requirements.txt"
 ]
