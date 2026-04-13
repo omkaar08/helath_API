@@ -2,6 +2,7 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 import asyncio
 
 from fastapi import FastAPI, HTTPException, Request
@@ -142,19 +143,20 @@ async def analyze(req: AnalyzeRequest, request: Request):
     )
 
 
+_BASE = Path(__file__).parent.parent
+
+
 @app.get("/procedures", tags=["Reference"])
 def list_procedures():
     import pandas as pd
-    from pathlib import Path
-    df = pd.read_csv(Path("data/procedure_costs.csv"))
+    df = pd.read_csv(_BASE / "data" / "procedure_costs.csv")
     return {"procedures": df["procedure"].tolist(), "count": len(df)}
 
 
 @app.get("/conditions", tags=["Reference"])
 def list_conditions():
     import pandas as pd
-    from pathlib import Path
-    df = pd.read_csv(Path("data/medical_mapping.csv"))
+    df = pd.read_csv(_BASE / "data" / "medical_mapping.csv")
     return {
         "conditions": df[["symptoms", "condition", "procedure", "specialty", "urgency"]].to_dict(orient="records"),
         "count": len(df),
@@ -163,8 +165,8 @@ def list_conditions():
 
 @app.delete("/cache", tags=["Admin"])
 def clear_cache():
-    from pathlib import Path
-    cache_dir = Path("cache")
+    cache_dir = _BASE / "cache"
+    cache_dir.mkdir(exist_ok=True)
     files = list(cache_dir.glob("*.json"))
     for f in files:
         f.unlink()
