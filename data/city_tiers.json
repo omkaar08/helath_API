@@ -1,0 +1,17 @@
+{
+  "tier1": {
+    "cities": ["mumbai", "delhi", "bangalore", "bengaluru", "chennai", "hyderabad", "kolkata", "pune", "ahmedabad", "surat"],
+    "multiplier": 1.4,
+    "label": "Tier 1 Metro"
+  },
+  "tier2": {
+    "cities": ["jaipur", "lucknow", "kanpur", "nagpur", "indore", "bhopal", "patna", "vadodara", "ludhiana", "agra", "nashik", "faridabad", "meerut", "rajkot", "varanasi", "srinagar", "aurangabad", "amritsar", "ranchi", "coimbatore", "vijayawada", "jodhpur", "madurai", "raipur", "kota", "guwahati", "chandigarh", "solapur", "hubli", "tiruchirappalli", "bareilly", "mysore", "mysuru", "tiruppur", "gurgaon", "gurugram", "aligarh", "jalandhar", "bhubaneswar", "salem", "warangal", "guntur", "bhiwandi", "saharanpur", "gorakhpur", "bikaner", "amravati", "noida", "jamshedpur", "bhilai", "cuttack", "firozabad", "kochi", "ernakulam"],
+    "multiplier": 1.1,
+    "label": "Tier 2 City"
+  },
+  "tier3": {
+    "cities": [],
+    "multiplier": 0.85,
+    "label": "Tier 3 / Small City"
+  }
+}

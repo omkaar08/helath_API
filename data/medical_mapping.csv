@@ -1,0 +1,55 @@
+symptoms,condition,procedure,specialty,urgency
+chest pain,Angina / Coronary Artery Disease,Coronary Angiography,Cardiology,High
+chest pain while walking,Stable Angina,Stress Test + Angiography,Cardiology,High
+chest tightness,Angina / Coronary Artery Disease,ECG + Stress Test,Cardiology,High
+heart attack,Myocardial Infarction,Emergency Angioplasty (PTCA),Cardiology,Emergency
+palpitations,Cardiac Arrhythmia,Holter Monitor + ECG,Cardiology,Medium
+shortness of breath,Congestive Heart Failure,Echocardiography + BNP Test,Cardiology,High
+breathlessness on exertion,Heart Failure / COPD,Pulmonary Function Test + Echo,Pulmonology,High
+cough with blood,Pulmonary Tuberculosis / Lung Cancer,Bronchoscopy + CT Chest,Pulmonology,High
+persistent cough,Chronic Bronchitis / Asthma,Spirometry + Chest X-Ray,Pulmonology,Medium
+wheezing,Asthma,Spirometry + Bronchodilator Test,Pulmonology,Medium
+high fever with chills,Malaria / Typhoid,Blood Smear + Widal Test,General Medicine,Medium
+fever with rash,Dengue Fever,NS1 Antigen + CBC,General Medicine,High
+severe headache,Migraine / Hypertensive Crisis,MRI Brain + BP Monitoring,Neurology,High
+sudden severe headache,Subarachnoid Hemorrhage,CT Brain + Lumbar Puncture,Neurology,Emergency
+dizziness and vomiting,Vertigo / Labyrinthitis,MRI Brain + Audiometry,Neurology,Medium
+weakness in limbs,Stroke / TIA,MRI Brain + Carotid Doppler,Neurology,Emergency
+memory loss,Dementia / Alzheimer's,MRI Brain + Neuropsychological Test,Neurology,Medium
+seizures,Epilepsy,EEG + MRI Brain,Neurology,High
+abdominal pain,Peptic Ulcer / Appendicitis,Ultrasound Abdomen + Endoscopy,Gastroenterology,High
+severe abdominal pain,Acute Appendicitis / Pancreatitis,CT Abdomen + Lipase Test,Gastroenterology,Emergency
+nausea and vomiting,Gastroenteritis / GERD,Endoscopy + H. Pylori Test,Gastroenterology,Medium
+jaundice,Hepatitis / Liver Cirrhosis,LFT + Hepatitis Panel + Ultrasound,Gastroenterology,High
+blood in stool,Colorectal Cancer / IBD,Colonoscopy + Biopsy,Gastroenterology,High
+difficulty swallowing,Esophageal Cancer / GERD,Upper GI Endoscopy,Gastroenterology,High
+frequent urination,Diabetes / UTI,FBS + HbA1c + Urine Culture,Endocrinology,Medium
+excessive thirst,Diabetes Mellitus,FBS + HbA1c + OGTT,Endocrinology,Medium
+weight loss,Diabetes / Thyroid / Cancer,FBS + TSH + CT Scan,Endocrinology,High
+fatigue and weight gain,Hypothyroidism,TSH + T3 + T4,Endocrinology,Low
+joint pain,Rheumatoid Arthritis / Osteoarthritis,X-Ray Joints + RA Factor,Orthopedics,Medium
+knee pain,Osteoarthritis / Ligament Tear,MRI Knee + X-Ray,Orthopedics,Medium
+back pain,Lumbar Disc Herniation,MRI Spine + X-Ray,Orthopedics,Medium
+neck pain,Cervical Spondylosis,MRI Cervical Spine,Orthopedics,Medium
+fracture,Bone Fracture,X-Ray + Orthopedic Consultation,Orthopedics,High
+skin rash,Psoriasis / Eczema / Allergy,Skin Biopsy + Allergy Test,Dermatology,Low
+hair loss,Alopecia / Thyroid Disorder,TSH + Scalp Biopsy,Dermatology,Low
+acne,Acne Vulgaris,Dermatology Consultation,Dermatology,Low
+burning urination,Urinary Tract Infection,Urine Culture + Sensitivity,Urology,Medium
+kidney stones,Nephrolithiasis,CT KUB + Ultrasound Kidney,Urology,High
+blood in urine,Kidney Stone / Bladder Cancer,Cystoscopy + CT KUB,Urology,High
+eye pain,Glaucoma / Uveitis,IOP Measurement + Slit Lamp,Ophthalmology,High
+blurred vision,Diabetic Retinopathy / Cataract,Fundoscopy + OCT,Ophthalmology,Medium
+ear pain,Otitis Media / Ear Infection,Otoscopy + Audiometry,ENT,Medium
+hearing loss,Sensorineural Hearing Loss,Audiometry + MRI Brain,ENT,Medium
+sore throat,Tonsillitis / Pharyngitis,Throat Swab + Culture,ENT,Low
+nasal congestion,Sinusitis / Allergic Rhinitis,CT Paranasal Sinuses,ENT,Low
+anxiety,Generalized Anxiety Disorder,Psychiatric Evaluation + CBT,Psychiatry,Medium
+depression,Major Depressive Disorder,Psychiatric Evaluation,Psychiatry,Medium
+insomnia,Sleep Disorder / Depression,Polysomnography + Psychiatric Eval,Psychiatry,Low
+chest infection,Pneumonia,Chest X-Ray + Sputum Culture,Pulmonology,High
+swollen lymph nodes,Lymphoma / Infection,CT Chest + Biopsy,Oncology,High
+lump in breast,Breast Cancer,Mammography + Biopsy,Oncology,High
+prostate issues,Benign Prostatic Hyperplasia / Cancer,PSA Test + Biopsy,Urology,High
+irregular periods,PCOS / Endometriosis,Pelvic Ultrasound + Hormonal Panel,Gynecology,Medium
+pelvic pain,Endometriosis / Ovarian Cyst,Pelvic Ultrasound + Laparoscopy,Gynecology,Medium
